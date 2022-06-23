@@ -20,7 +20,7 @@
               <div class="flex flex-col">
                 <label
                   for="userEmailFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >User Email</label
                 >
                 <input
@@ -35,7 +35,7 @@
               <div class="flex flex-col">
                 <label
                   for="userPhoneFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >User Phone</label
                 >
                 <input
@@ -50,7 +50,7 @@
               <div class="flex flex-col">
                 <label
                   for="transactionDateFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >Transaction Date Start</label
                 >
                 <input
@@ -64,7 +64,7 @@
               <div class="flex flex-col">
                 <label
                   for="transactionDateFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >Transaction Date End</label
                 >
                 <input
@@ -79,7 +79,7 @@
               <div class="flex flex-col">
                 <label
                   for="denoFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >Deno</label
                 >
                 <select
@@ -98,7 +98,7 @@
               <div class="flex flex-col">
                 <label
                   for="statusFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >Status</label
                 >
                 <select
@@ -116,7 +116,7 @@
               <div class="flex flex-col">
                 <label
                   for="transactionIDFilter"
-                  class="font-medium text-sm text-stone-600"
+                  class="font-medium text-sm text-slate-600"
                   >Transaction ID</label
                 >
                 <input
