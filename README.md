@@ -7,7 +7,9 @@
 3. Create a new database in your MySQL local instance with the following queries:
 
       a) CREATE DATABASE IF NOT EXISTS `grabportallogin` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+      
       b) USE `grabportallogin`;
+      
       c) CREATE TABLE IF NOT EXISTS `accounts` (
          `id` int(11) NOT NULL AUTO_INCREMENT,
          `username` varchar(50) NOT NULL,
@@ -15,6 +17,7 @@
          `email` varchar(100) NOT NULL,
          PRIMARY KEY (`id`)
          ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+      
       d) INSERT INTO `accounts` (`id`, `username`, `password`, `email`) VALUES (1, 'test', 'test', 'test@test.com');
 
 4. Using the command line or terminal, navigate to the directory of the project(grabportal-main). Then enter the command "code ." which will open the project in VSCode.
