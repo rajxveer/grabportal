@@ -6,7 +6,7 @@
       <div
         class="text-xl font-bold text-gray-100 md:text-2xl hover:text-green-500"
       >
-        <img alt="ATX logo" src="../../atx.ico" class="h-20" />
+        <img alt="ATX logo" src="../assets/atx.ico" class="h-20" />
       </div>
 
       <ul
