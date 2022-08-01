@@ -1,3 +1,39 @@
+# Instructions to run
+
+1. VSCode is recommended to run this project. Download here: https://code.visualstudio.com/
+
+2. Make sure you have Node.js installed on your machine. Download here: https://nodejs.org/en/download/
+
+3. Create a new database in your MySQL local instance with the following queries:
+
+      a) CREATE DATABASE IF NOT EXISTS `grabportallogin` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+      
+      b) USE `grabportallogin`;
+      
+      c) CREATE TABLE IF NOT EXISTS `accounts` (
+         `id` int(11) NOT NULL AUTO_INCREMENT,
+         `username` varchar(50) NOT NULL,
+         `password` varchar(255) NOT NULL,
+         `email` varchar(100) NOT NULL,
+         PRIMARY KEY (`id`)
+         ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+      
+      d) INSERT INTO `accounts` (`id`, `username`, `password`, `email`) VALUES (1, 'test', 'test', 'test@test.com');
+
+4. Using the command line or terminal, navigate to the directory of the project(grabportal-main). Then enter the command "code ." which will open the project in VSCode.
+
+5. In VSCode, edit the "/grabportal-main/backend/config/userDB.js" file to match the credentials of your MySQL local instance credentials. 
+![image](https://user-images.githubusercontent.com/93634846/175802377-3bbde579-3d70-49c5-9c07-b78e9137439d.png)
+
+6. Open the built-in terminal in VSCode and navigate to the "/grabportal-main/backend/" directory. Then enter the command "node index". In order for this step to work, you must be connected to ATX's VPN to access the database. 
+
+7. Open the built-in terminal in VSCode and navigate to the "/grabportal-main/frontend/" directory. Then enter the command "npm run dev". If there is an error, enter the command "npm install" and try the previous command again. 
+
+8. Finally, click on the link that appears after running the "npm run dev" command and log-in with the credentials "test" and "test". 
+
+
+
+
 # Grab-Reload-Reporting-Portal
 
 This is a portal meant to report on Grab Reloads. 
