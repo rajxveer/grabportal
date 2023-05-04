@@ -931,6 +931,7 @@ export default {
 
     function filterFunction() {
       loading.value = true;
+      console.log(pager.value.currentPage);
       DataService.getFilteredData(pager.value.currentPage, filter.value)
         .then((response) => {
           pager.value.totalItems = response.data.totalItems;
@@ -1003,6 +1004,12 @@ export default {
     }
 
     function resetFilter() {
+      router.push({
+        query: {
+          ...router.currentRoute.value.query,
+          page: 1,
+        },
+      });
       filter.value = {
         transactionID: "",
         startDate: formattedStartDate,
@@ -1020,23 +1027,25 @@ export default {
       //getter function return page value
       () => route.query.page,
       (page) => {
+        console.log(pager.value.currentPage);
         if (page !== pager.value.currentPage) {
+
           page = parseInt(page) || 1;
           loading.value = true;
-          DataService.getFilteredData(pager.value.currentPage, filter.value)
-        .then((response) => {
-          pager.value.totalItems = response.data.totalItems;
-          pager.value.totalPages = response.data.totalPages;
-          pager.value.currentPage = response.data.currentPage;
-          pager.value.pages = response.data.pages;
-          pager.value.startIndex = response.data.startIndex;
-          pager.value.endIndex = response.data.endIndex;
-          pager.value.data = response.data.data;
-          console.log(pager.value);
-          if( pager.value.data.length === 0){
-            pager.value.startIndex = -1
-          }
-          loading.value = false;
+          DataService.getFilteredData(page, filter.value)
+          .then((response) => {
+            pager.value.totalItems = response.data.totalItems;
+            pager.value.totalPages = response.data.totalPages;
+            pager.value.currentPage = response.data.currentPage;
+            pager.value.pages = response.data.pages;
+            pager.value.startIndex = response.data.startIndex;
+            pager.value.endIndex = response.data.endIndex;
+            pager.value.data = response.data.data;
+            console.log(pager.value);
+            if( pager.value.data.length === 0){
+              pager.value.startIndex = -1
+            }
+            loading.value = false;
         })
         .catch((e) => {
           console.warn(e);

@@ -16,6 +16,7 @@ const Transaction  = require('../models/transaction');
 const {Op} = require("sequelize");
 const { validateHisoryFilter, validateExportFilter } = require("../validation/HistoryInput.validation");
 const moment = require('moment');
+const { log } = require("console");
 
 
 const jwtHelper = new JWTHelper();
@@ -395,8 +396,40 @@ router.post("/history/getFilteredData/:page/", async (req, res, next) => {
 
   const list = [];
 
-  for (let i = 1; i <= totalPageCount; i++) {
-    list.push(i);
+  if (totalPageCount <= 11) {
+    for (let i = 1; i <= totalPageCount; i++) {
+      list.push(i);
+    }
+  } else {
+    if (page <= 6) {
+      for (let i = 1; i <= 7; i++) {
+        list.push(i);
+      }
+      list.push('...');
+      for (let i = totalPageCount - 4; i <= totalPageCount; i++) {
+        list.push(i);
+      }
+    } else if (page >= totalPageCount - 5) {
+      for (let i = 1; i <= 4; i++) {
+        list.push(i);
+      }
+      list.push('...');
+      for (let i = totalPageCount - 6; i <= totalPageCount; i++) {
+        list.push(i);
+      }
+    } else {
+      for (let i = 1; i <= 3; i++) {
+        list.push(i);
+      }
+      list.push('...');
+      for (let i = page - 2; i <= page + 2; i++) {
+        list.push(i);
+      }
+      list.push('...');
+      for (let i = totalPageCount - 2; i <= totalPageCount; i++) {
+        list.push(i);
+      }
+    }
   }
 
   return res.json({
@@ -405,7 +438,7 @@ router.post("/history/getFilteredData/:page/", async (req, res, next) => {
     currentPage: page,
     pages: list,
     startIndex: (page-1) * pageSize,
-    endIndex: rows.length==0? 0:(page===totalPageCount)? count : (page-1) * pageSize + pageSize,
+    endIndex: (rows.length == 0) ? -1 : (page == totalPageCount) ? count - 1 : (page-1) * pageSize + pageSize,
     data: rows,
   });
 });
