@@ -62,14 +62,14 @@
 
     <div class="grid md:flex grid-cols-2 justify-end space-x-4 w-full mt-6">
       <button
-        @click="getStatusChart(true)"
+        @click="clearFilter()"
         class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 font-bold text-white shadow-lg shadow-gray-200 transition ease-in-out duration-200 translate-10"
       >
         Last 30 days
       </button>
 
       <button
-        @click="getStatusChart(false)"
+        @click="getStatusChart()"
         class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-bold text-white shadow-lg shadow-green-200 transition ease-in-out duration-200 translate-10"
       >
         Apply
@@ -84,14 +84,18 @@ import DataService from "../services/DataService";
 export default {
   setup() {
     onMounted(() => {
-      getStatusChart(true);
+      getStatusChart();
     });
     const showChart = ref(false);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
     const dateFilter = ref({
-      isDefault: true,
-      startDate: null,
-      endDate: null,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
     });
+
     const options = ref({
       chart: {
         id: "transaction-status",
@@ -132,13 +136,23 @@ export default {
         data: [0, 0, 0],
       },
     ]);
-    async function getStatusChart(isDefault) {
-      dateFilter.value.isDefault = isDefault;
+
+    async function clearFilter(){
+      dateFilter.value = {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      };
+      series.value[0].data = [0,0,0];
+      
+      getStatusChart();
+    }
+
+    async function getStatusChart() {
       showChart.value = false;
       await DataService.getStatusChart(dateFilter.value)
         .then((res) => {
-          dateFilter.value.startDate = res.data[0].startDate;
-          dateFilter.value.endDate = res.data[0].endDate;
+          dateFilter.value.startDate = res.data.startDate;
+          dateFilter.value.endDate = res.data.endDate;
           options.value.chart.id =
             "Transaction status from " +
             dateFilter.value.startDate +
@@ -149,14 +163,14 @@ export default {
             dateFilter.value.startDate +
             " to " +
             dateFilter.value.endDate;
-          if (res.data[1].success) {
-            series.value[0].data[0] = res.data[1].success.count;
+          if (res.data.data.success) {
+            series.value[0].data[0] = res.data.data.success.count;
           }
-          if (res.data[1].failed) {
-            series.value[0].data[1] = res.data[1].failed.count;
+          if (res.data.data.failed) {
+            series.value[0].data[1] = res.data.data.failed.count;
           }
-          if (res.data[1].pending) {
-            series.value[0].data[2] = res.data[1].pending.count;
+          if (res.data.data.pending) {
+            series.value[0].data[2] = res.data.data.pending.count;
           }
           showChart.value = true;
         })
@@ -171,6 +185,7 @@ export default {
       series,
       showChart,
       getStatusChart,
+      clearFilter
     };
   },
 };

@@ -54,7 +54,7 @@
                   >Transaction Date Start</label
                 >
                 <input
-                  v-model="filter.transactionStartDate"
+                  v-model="filter.startDate"
                   type="date"
                   id="transactionDateFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
@@ -68,7 +68,7 @@
                   >Transaction Date End</label
                 >
                 <input
-                  v-model="filter.transactionEndDate"
+                  v-model="filter.endDate"
                   type="date"
                   id="transactionDateFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
@@ -624,7 +624,7 @@
               </tr>
             </thead>
 
-            <tbody v-for="(item, index) in pageOfItems" :key="index">
+            <tbody v-for="(item, index) in pager.data" :key="index">
               <tr
                 class="hover:bg-gray-500 bg-slate-600 h-10"
                 v-if="index % 2 === 0"
@@ -633,67 +633,67 @@
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionDate"
                 >
-                  {{ item[1].created_at }}
+                  {{ item.created_at }}
                 </td>
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionID"
                 >
-                  {{ item[1].id }}
+                  {{ item.id }}
                 </td>
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userName"
                 >
-                  {{ item[1].user_name }}
+                  {{ item.user_name }}
                 </td>
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userPhone"
                 >
-                  {{ item[1].user_phone }}
+                  {{ item.user_phone }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userEmail"
                 >
-                  {{ item[1].user_email }}
+                  {{ item.user_email }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.amount"
                 >
-                  {{ item[1].amount_value }}
+                  {{ item.amount_value }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.status"
                 >
-                  {{ item[1].status }}
+                  {{ item.status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miTransactionID"
                 >
-                  {{ item[1].agent_transaction_id }}
+                  {{ item.agent_transaction_id }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miStatus"
                 >
-                  {{ item[1].novati_status }}
+                  {{ item.novati_status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.modeOfPayment"
                 >
-                  {{ item[1].provider }}
+                  {{ item.provider }}
                 </td>
 
                 <td class="pl-2">
@@ -742,70 +742,70 @@
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionDate"
                 >
-                  {{ item[1].created_at }}
+                  {{ item.created_at }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionID"
                 >
-                  {{ item[1].id }}
+                  {{ item.id }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userName"
                 >
-                  {{ item[1].user_name }}
+                  {{ item.user_name }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userPhone"
                 >
-                  {{ item[1].user_phone }}
+                  {{ item.user_phone }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userEmail"
                 >
-                  {{ item[1].user_email }}
+                  {{ item.user_email }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.amount"
                 >
-                  {{ item[1].amount_value }}
+                  {{ item.amount_value }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.status"
                 >
-                  {{ item[1].status }}
+                  {{ item.status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miTransactionID"
                 >
-                  {{ item[1].agent_transaction_id }}
+                  {{ item.agent_transaction_id }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miStatus"
                 >
-                  {{ item[1].novati_status }}
+                  {{ item.novati_status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.modeOfPayment"
                 >
-                  {{ item[1].provider }}
+                  {{ item.provider }}
                 </td>
 
                 <td class="pl-2">
@@ -852,7 +852,7 @@
           </table>
           <div
             class="flex items-center justify-center text-gray-200"
-            v-if="pageOfItems.length === 0 && !loading"
+            v-if="pager.data.length === 0 && !loading"
           >
             No record found
           </div>
@@ -875,6 +875,10 @@ export default {
     const dropDownShowColumn = ref(false);
     const todayTransaction = ref({});
     const selectAll = ref(false);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
 
     const columnsChecked = ref({
       transactionDate: true,
@@ -890,29 +894,25 @@ export default {
     });
 
     const route = useRoute();
-    const pager = ref({
-      currentPage: 0,
-      endIndex: 0,
-      endPage: 0,
-      pageSize: 0,
-      pages: 0,
-      startIndex: 0,
-      startPage: null,
-      totalItems: 0,
-      totalPages: 0,
-    });
 
-    const pageOfItems = ref([]);
+    const pager = ref({
+      totalPages: 0,
+      totalItems:0,
+      currentPage:1,
+      pages:[],
+      startIndex:0,
+      endIndex:0,
+      data:[]
+    })
 
     const filter = ref({
-      transactionID: null,
-      transactionStartDate: "2021-10-03", //always required, should be set as today
-      transactionEndDate: "2021-10-04",
-      userPhone: null,
-      userEmail: null,
-      deno: null,
-      status: null,
-      isCSV: null,
+      transactionID: "",
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      userPhone: "",
+      userEmail: "",
+      deno: "",
+      status: ""
     });
 
     function columnsSelectAll() {
@@ -930,16 +930,17 @@ export default {
     }
 
     function filterFunction() {
-      if (!filter.value.transactionStartDate) {
-        // set to today date
-        filter.value.transactionStartDate = "2021-10-03";
-      }
       loading.value = true;
       DataService.getFilteredData(pager.value.currentPage, filter.value)
         .then((response) => {
-          pager.value = response.data["pager"];
-          pageOfItems.value = response.data["pageOfItems"];
-          if(pageOfItems.value.length === 0){
+          pager.value.totalItems = response.data.totalItems;
+          pager.value.totalPages = response.data.totalPages;
+          pager.value.currentPage = response.data.currentPage;
+          pager.value.pages = response.data.pages;
+          pager.value.startIndex = response.data.startIndex;
+          pager.value.endIndex = response.data.endIndex;
+          pager.value.data = response.data.data;
+          if( pager.value.data.length === 0){
             pager.value.startIndex = -1
           }
           loading.value = false;
@@ -949,30 +950,46 @@ export default {
         });
     }
 
-    function verifyUser() {
+    async function verifyUser() {
       let token = localStorage.getItem("token");
-      DataService.auth({ headers: { authorization: token } })
-        .then((response) => {
+      await DataService.auth({ authorization: token })
+      .then((response) => {
           console.log(response.data.message);
           filterFunction();
         })
         .catch((e) => {
+          console.log(e);
           router.push("/deniedAccess");
         });
     }
 
     function exportData(asCSV) {
-      filter.value.asCSV = asCSV;
+      let fileTypeString;
+      if(asCSV){
+        fileTypeString = "CSV";
+      }else{
+        fileTypeString = "XLSX";
+      }
+      let exportFilter = ref({
+        transactionID: filter.value.transactionID,
+        startDate: filter.value.startDate,
+        endDate: filter.value.endDate,
+        userPhone: filter.value.userPhone,
+        userEmail: filter.value.userEmail,
+        deno: filter.value.deno,
+        status: filter.value.status,
+        fileType: fileTypeString
+      });
       let fileType;
       let fileName;
-      if (filter.value.asCSV) {
+      if (asCSV) {
         fileType = "csv/plain";
         fileName = "transactionHistory.csv";
       } else {
         fileType = "application/vnd.ms-excel";
         fileName = "transactionHistory.xlsx";
       }
-      DataService.exportData(filter.value).then((result) => {
+      DataService.exportData(exportFilter.value).then((result) => {
         var fileURL = window.URL.createObjectURL(
           new Blob([result.data], { type: fileType })
         );
@@ -984,18 +1001,18 @@ export default {
         fileLink.click();
       });
     }
+
     function resetFilter() {
       filter.value = {
-        transactionID: null,
-        //always required, should be set as today
-        transactionStartDate: "2021-10-03",
-        transactionEndDate: "2021-10-04",
-        userPhone: null,
-        userEmail: null,
-        deno: null,
-        status: null,
-        asCSV: null,
+        transactionID: "",
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        userPhone: "",
+        userEmail: "",
+        deno: "",
+        status: ""
       };
+      filterFunction();
     }
 
     //watch(source,callback,option)
@@ -1003,20 +1020,27 @@ export default {
       //getter function return page value
       () => route.query.page,
       (page) => {
-        pageOfItems.value = [];
         if (page !== pager.value.currentPage) {
           page = parseInt(page) || 1;
           loading.value = true;
-          DataService.getFilteredData(page, filter.value)
-            .then((response) => {
-              pager.value = response.data["pager"];
-              pageOfItems.value = response.data["pageOfItems"];
-              
-              loading.value = false;
-            })
-            .catch((e) => {
-              console.warn(e);
-            });
+          DataService.getFilteredData(pager.value.currentPage, filter.value)
+        .then((response) => {
+          pager.value.totalItems = response.data.totalItems;
+          pager.value.totalPages = response.data.totalPages;
+          pager.value.currentPage = response.data.currentPage;
+          pager.value.pages = response.data.pages;
+          pager.value.startIndex = response.data.startIndex;
+          pager.value.endIndex = response.data.endIndex;
+          pager.value.data = response.data.data;
+          console.log(pager.value);
+          if( pager.value.data.length === 0){
+            pager.value.startIndex = -1
+          }
+          loading.value = false;
+        })
+        .catch((e) => {
+          console.warn(e);
+        });
         }
       },
       {
@@ -1036,7 +1060,6 @@ export default {
       selectAll,
       filter,
       pager,
-      pageOfItems,
       verifyUser,
       filterFunction,
       columnsSelectAll,

@@ -185,10 +185,13 @@ export default {
       verifyUser();
     });
     const loading = ref(true);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
     const dateFilter = ref({
-      isDefault: true,
-      startDate: null,
-      endDate: null,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
     });
     const totalAmount = ref({});
     const totalTransaction = ref("null");
@@ -197,15 +200,14 @@ export default {
     const todayTransaction = ref({});
 
     async function getTotalCard(isDefault) {
-      dateFilter.value.isDefault = isDefault;
       loading.value = true;
       await DataService.getTotalCard(dateFilter.value)
         .then((res) => {
-          dateFilter.value.startDate = res.data[0].startDate;
-          dateFilter.value.endDate = res.data[0].endDate;
-          totalTransaction.value = res.data[1].totalTransaction;
-          totalPayout.value = res.data[2].totalPayout;
-          totalCustomer.value = res.data[3].totalCustomer;
+          dateFilter.value.startDate = res.data.startDate;
+          dateFilter.value.endDate = res.data.endDate;
+          totalTransaction.value = res.data.data.totalTransaction ?? 0;
+          totalPayout.value = res.data.data.totalPayout ?? 0;
+          totalCustomer.value = res.data.data.totalCustomer ?? 0;
           loading.value = false;
         })
         .catch((e) => {
@@ -215,7 +217,7 @@ export default {
 
     async function verifyUser() {
       let token = localStorage.getItem("token");
-      await DataService.auth({ headers: { authorization: token } })
+      await DataService.auth({ authorization: token })
         .then((response) => {
           console.log(response.data.message);
           getTotalCard(true);
