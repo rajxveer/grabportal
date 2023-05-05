@@ -110,14 +110,14 @@
               class="grid md:flex grid-cols-2 justify-end space-x-4 w-full mt-6"
             >
               <button
-                @click="getTotalCard(true)"
+                @click="clearFilter()"
                 class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 font-bold text-white shadow-lg shadow-gray-200 transition ease-in-out duration-200 translate-10"
               >
                 Last 30 days
               </button>
 
               <button
-                @click="getTotalCard(false)"
+                @click="getTotalCard()"
                 class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-bold text-white shadow-lg shadow-green-200 transition ease-in-out duration-200 translate-10"
               >
                 Apply
@@ -199,7 +199,16 @@ export default {
     const totalPayout = ref("null");
     const todayTransaction = ref({});
 
-    async function getTotalCard(isDefault) {
+    async function clearFilter(){
+      dateFilter.value = {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      };
+      
+      getTotalCard();
+    }
+
+    async function getTotalCard() {
       loading.value = true;
       await DataService.getTotalCard(dateFilter.value)
         .then((res) => {
@@ -237,6 +246,7 @@ export default {
       loading,
       verifyUser,
       getTotalCard,
+      clearFilter
     };
   },
 
