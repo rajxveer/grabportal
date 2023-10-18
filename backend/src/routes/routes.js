@@ -363,7 +363,7 @@ router.post("/history/getFilteredData/:page/", async (req, res, next) => {
   console.log(validationRes);
 
   if(validationRes.transactionID && validationRes.transactionID.length !== 0){
-    where.id = validationRes.transactionID;
+    where.agent_transaction_id = validationRes.transactionID;
   }
   if(validationRes.userEmail && validationRes.userEmail.length !== 0){
     where.user_email = validationRes.userEmail;
@@ -384,12 +384,12 @@ router.post("/history/getFilteredData/:page/", async (req, res, next) => {
 
   const { count, rows } = await Transaction.findAndCountAll({
     attributes: [
-      'id','created_at','user_name','user_email','user_phone','amount_value','status','agent_transaction_id', 'novati_status', 'provider'
+      'id','created_at','updated_at','user_name','user_email','user_phone','amount_value','status','agent_transaction_id', 'novati_status', 'provider'
     ],
     offset: (page - 1) * pageSize,
     limit: pageSize,
     where: where,
-    order: [ ['created_at', 'ASC'] ],
+    order: [ ['created_at', 'DESC'] ],
   });
 
   const totalPageCount = Math.ceil(count / pageSize);
@@ -497,14 +497,15 @@ router.post("/export", async (req, res) => {
   });
 
   const headers = [
-    'ID',
+    'Transaction ID',
     'Created At',
-    'User Name',
+    'Updated At',
+    // 'User Name',
     'User Email',
     'User Phone',
     'Amount Value',
     'Status',
-    'Agent Transaction ID',
+    // 'Agent Transaction ID',
     'Novati Status',
     'Provider'
   ];
@@ -513,16 +514,17 @@ router.post("/export", async (req, res) => {
   const convertToCSV = (dataExport, res) => {
     const records = dataExport.map((transaction) => {
       return [
-        transaction.id,
+        String(transaction.agent_transaction_id),
         moment(transaction.created_at).format('YYYY-MM-DD HH:mm:ss'),
-        transaction.user_name,
-        transaction.user_email,
-        transaction.user_phone,
-        transaction.amount_value,
-        transaction.status,
-        transaction.agent_transaction_id,
-        transaction.novati_status,
-        transaction.provider
+        moment(transaction.updated_at).format('YYYY-MM-DD HH:mm:ss'),
+        // transaction.user_name,
+        String(transaction.user_email),
+        String(transaction.user_phone),
+        String(transaction.amount_value),
+        String(transaction.status),
+        // transaction.agent_transaction_id,
+        String(transaction.novati_status),
+        transaction.provider,
       ];
     });
 
@@ -559,6 +561,25 @@ router.post("/export", async (req, res) => {
 
   const convertToXLSX = (csvFilePath, res) => {
     const workbook = XLSX.readFile(csvFilePath);
+    const dateStyle = { numFmt: 'yyyy-mm-dd hh:mm:ss' };
+
+  workbook.SheetNames.forEach((sheetName) => {
+    const worksheet = workbook.Sheets[sheetName];
+    
+    const timeColumns = ['B', 'C']; // Adjust these column letters as needed
+    timeColumns.forEach((col) => {
+      console.log(col)
+      for (const cell in worksheet) {
+        if (cell[0] === col) {
+          
+          if (worksheet[cell].t === 'n' && !isNaN(worksheet[cell].v)) {
+            worksheet[cell].z = dateStyle.numFmt;
+          }
+        }
+      }
+    });
+  });
+
     const xlsxFilePath = csvFilePath.replace('.csv', '.xlsx');
     XLSX.writeFile(workbook, xlsxFilePath);
     res.sendFile(xlsxFilePath, (err) => {
