@@ -62,14 +62,14 @@
 
     <div class="grid md:flex grid-cols-2 justify-end space-x-4 w-full mt-6">
       <button
-        @click="getAmountChart(true)"
+        @click="clearFilter()"
         class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 font-bold text-white shadow-lg shadow-gray-200 transition ease-in-out duration-200 translate-10"
       >
         Last 30 days
       </button>
 
       <button
-        @click="getAmountChart(false)"
+        @click="getAmountChart()"
         class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-bold text-white shadow-lg shadow-green-200 transition ease-in-out duration-200 translate-10"
       >
         Apply
@@ -84,14 +84,19 @@ import DataService from "../services/DataService";
 export default {
   setup() {
     onMounted(() => {
-      getAmountChart(true);
+      getAmountChart();
     });
     const showChart = ref(false);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
+
     const dateFilter = ref({
-      isDefault: true,
-      startDate: null,
-      endDate: null,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
     });
+
     const options = ref({
       chart: {
         id: "transaction-deno",
@@ -105,7 +110,7 @@ export default {
         },
       },
       xaxis: {
-        categories: ["30", "50", "100"],
+        categories: ["10", "30", "50"],
         labels: {
           show: true,
           style: {
@@ -134,13 +139,22 @@ export default {
       },
     ]);
 
-    async function getAmountChart(isDefault) {
-      dateFilter.value.isDefault = true;
-       showChart.value = false;
+    async function clearFilter(){
+      dateFilter.value = {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      };
+      series.value[0].data = [0,0,0];
+
+      getAmountChart();
+    }
+
+    async function getAmountChart() {
+      showChart.value = false;
       await DataService.getAmountChart(dateFilter.value)
         .then((res) => {
-          dateFilter.value.startDate = res.data[0].startDate;
-          dateFilter.value.endDate = res.data[0].endDate;
+          dateFilter.value.startDate = res.data.startDate;
+          dateFilter.value.endDate = res.data.endDate;
           options.value.chart.id =
             "Transaction status from " +
             dateFilter.value.startDate +
@@ -151,15 +165,28 @@ export default {
             dateFilter.value.startDate +
             " to " +
             dateFilter.value.endDate;
-          if (res.data[1][30]) {
-            series.value[0].data[0] = res.data[1][30].count;
+
+            for (let index = 0; index < res.data.data.length; index++) {
+            const element = res.data.data[index];
+            if (element !== null){
+              switch (element.amount_value) {
+                case 10:
+                  series.value[0].data[0] = element.count;
+                  break;
+                case 30:
+                  series.value[0].data[1] = element.count;
+                  break;
+                case 50:
+                  series.value[0].data[2] = element.count;
+                  break;
+                default:
+                  break;
+              }
+            }
+            
           }
-          if (res.data[1][50]) {
-            series.value[0].data[1] = res.data[1][50].count;
-          }
-          if (res.data[1][100]) {
-            series.value[0].data[2] = res.data[1][100].count;
-          }
+          
+
           showChart.value = true;
         })
         .catch((e) => {
@@ -193,6 +220,7 @@ export default {
       series,
       showChart,
       getAmountChart,
+      clearFilter,
     };
   },
 };

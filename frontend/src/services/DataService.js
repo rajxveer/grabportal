@@ -8,7 +8,7 @@ class DataService {
     return http.post("/logout");
   }
   auth(headers) {
-    return http.get("/auth", headers);
+    return http.post("/auth",{}, {headers});
   }
   getTotalCard(dateFilter) {
     return http.post("/dashboard/getTotalCard", dateFilter);

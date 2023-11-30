@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -14,10 +14,13 @@
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.18.1",
+    "joi": "^17.9.2",
     "jsonwebtoken": "^8.5.1",
+    "moment": "^2.29.4",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
-    "sequelize": "^6.20.1"
+    "sequelize": "^6.20.1",
+    "sequelize-pagination": "^1.1.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.16"

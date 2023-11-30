@@ -110,14 +110,14 @@
               class="grid md:flex grid-cols-2 justify-end space-x-4 w-full mt-6"
             >
               <button
-                @click="getTotalCard(true)"
+                @click="clearFilter()"
                 class="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 font-bold text-white shadow-lg shadow-gray-200 transition ease-in-out duration-200 translate-10"
               >
                 Last 30 days
               </button>
 
               <button
-                @click="getTotalCard(false)"
+                @click="getTotalCard()"
                 class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 font-bold text-white shadow-lg shadow-green-200 transition ease-in-out duration-200 translate-10"
               >
                 Apply
@@ -160,7 +160,7 @@
         <!-- Mode Of Payment bar chart -->
         <div class="card bg-gray-800 w-full h-fit rounded-md p-5 shadow">
           <h2 class="font-normal text-gray-400 text-lg mt-1">
-            Mode of Payment
+            Provider
           </h2>
           <ModeOfPaymentChart />
         </div>
@@ -185,10 +185,13 @@ export default {
       verifyUser();
     });
     const loading = ref(true);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
     const dateFilter = ref({
-      isDefault: true,
-      startDate: null,
-      endDate: null,
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
     });
     const totalAmount = ref({});
     const totalTransaction = ref("null");
@@ -196,16 +199,24 @@ export default {
     const totalPayout = ref("null");
     const todayTransaction = ref({});
 
-    async function getTotalCard(isDefault) {
-      dateFilter.value.isDefault = isDefault;
+    async function clearFilter(){
+      dateFilter.value = {
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+      };
+      
+      getTotalCard();
+    }
+
+    async function getTotalCard() {
       loading.value = true;
       await DataService.getTotalCard(dateFilter.value)
         .then((res) => {
-          dateFilter.value.startDate = res.data[0].startDate;
-          dateFilter.value.endDate = res.data[0].endDate;
-          totalTransaction.value = res.data[1].totalTransaction;
-          totalPayout.value = res.data[2].totalPayout;
-          totalCustomer.value = res.data[3].totalCustomer;
+          dateFilter.value.startDate = res.data.startDate;
+          dateFilter.value.endDate = res.data.endDate;
+          totalTransaction.value = res.data.data.totalTransaction ?? 0;
+          totalPayout.value = res.data.data.totalPayout ?? 0;
+          totalCustomer.value = res.data.data.totalCustomer ?? 0;
           loading.value = false;
         })
         .catch((e) => {
@@ -215,7 +226,7 @@ export default {
 
     async function verifyUser() {
       let token = localStorage.getItem("token");
-      await DataService.auth({ headers: { authorization: token } })
+      await DataService.auth({ authorization: token })
         .then((response) => {
           console.log(response.data.message);
           getTotalCard(true);
@@ -235,6 +246,7 @@ export default {
       loading,
       verifyUser,
       getTotalCard,
+      clearFilter
     };
   },
 

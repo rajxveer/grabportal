@@ -5,6 +5,11 @@
         <h1 class="text-2xl text-black font-medium">Transaction History</h1>
       </div>
 
+      <div v-if="isLoading" class="loading-indicator">
+    <div class="spinner"></div>
+    <!-- <div class="loading-text">Loading...</div> -->
+  </div>
+
       <!-- Transaction History -->
       <div class="mt-2 flex gap-2">
         <div class="mt-2 bg-gray-800 p-5 w-full rounded-md box-border shadow">
@@ -17,6 +22,22 @@
             <div
               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6"
             >
+
+             <div class="flex flex-col">
+                <label
+                  for="transactionIDFilter"
+                  class="font-medium text-sm text-slate-600"
+                  >Transaction ID</label
+                >
+                <input
+                  v-model="filter.transactionID"
+                  type="text"
+                  id="transactionIDFilter"
+                  placeholder="012345"
+                  class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
+                />
+              </div>
+
               <div class="flex flex-col">
                 <label
                   for="userEmailFilter"
@@ -51,10 +72,10 @@
                 <label
                   for="transactionDateFilter"
                   class="font-medium text-sm text-slate-600"
-                  >Transaction Date Start</label
+                  >From Date</label
                 >
                 <input
-                  v-model="filter.transactionStartDate"
+                  v-model="filter.startDate"
                   type="date"
                   id="transactionDateFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
@@ -65,10 +86,10 @@
                 <label
                   for="transactionDateFilter"
                   class="font-medium text-sm text-slate-600"
-                  >Transaction Date End</label
+                  >To Date</label
                 >
                 <input
-                  v-model="filter.transactionEndDate"
+                  v-model="filter.endDate"
                   type="date"
                   id="transactionDateFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
@@ -113,20 +134,7 @@
                 </select>
               </div>
 
-              <div class="flex flex-col">
-                <label
-                  for="transactionIDFilter"
-                  class="font-medium text-sm text-slate-600"
-                  >Transaction ID</label
-                >
-                <input
-                  v-model="filter.transactionID"
-                  type="text"
-                  id="transactionIDFilter"
-                  placeholder="012345"
-                  class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg text-black"
-                />
-              </div>
+             
             </div>
 
             <div
@@ -252,8 +260,46 @@
             </label>
           </div>
 
-          <!-- Transaction ID dropdown -->
+          <!-- Updated Date dropdown -->
           <div
+            class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
+          >
+            <label class="flex items-center">
+              <input
+                class="flex item-center"
+                type="checkbox"
+                id="checkbox"
+                v-model="columnsChecked.updatedDate"
+                @click="
+                  columnsChecked.updatedDate =
+                    !columnsChecked.updatedDate
+                "
+              />
+              <span class="ml-2 text-sm">Updated At</span>
+            </label>
+          </div>
+
+          <!-- MI Transaction ID dropdown -->
+          <div
+            class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
+          >
+            <label class="flex items-center">
+              <input
+                class="flex item-center"
+                type="checkbox"
+                id="checkbox"
+                v-model="columnsChecked.miTransactionID"
+                @click="
+                  columnsChecked.miTransactionID =
+                    !columnsChecked.miTransactionID
+                "
+              />
+              <span class="ml-2 text-sm">Transaction ID</span>
+            </label>
+          </div>
+
+          <!-- Transaction ID dropdown -->
+          <!-- <div
             class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
           >
             <label class="flex items-center">
@@ -268,10 +314,10 @@
               />
               <span class="ml-2 text-sm">Transaction ID</span>
             </label>
-          </div>
+          </div> -->
 
           <!-- Username dropdown -->
-          <div
+          <!-- <div
             class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
           >
             <label class="flex items-center">
@@ -284,7 +330,7 @@
               />
               <span class="ml-2 text-sm">Username</span>
             </label>
-          </div>
+          </div> -->
 
           <!-- User Phone dropdown -->
           <div
@@ -350,24 +396,7 @@
             </label>
           </div>
 
-          <!-- MI Transaction ID dropdown -->
-          <div
-            class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
-          >
-            <label class="flex items-center">
-              <input
-                class="flex item-center"
-                type="checkbox"
-                id="checkbox"
-                v-model="columnsChecked.miTransactionID"
-                @click="
-                  columnsChecked.miTransactionID =
-                    !columnsChecked.miTransactionID
-                "
-              />
-              <span class="ml-2 text-sm">MI Transaction ID</span>
-            </label>
-          </div>
+          
 
           <!-- MI Status dropdown -->
           <div
@@ -385,7 +414,7 @@
             </label>
           </div>
 
-          <!-- Mode of Payment dropdown -->
+          <!-- Provider dropdown -->
           <div
             class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
           >
@@ -394,12 +423,12 @@
                 class="flex item-center"
                 type="checkbox"
                 id="checkbox"
-                v-model="columnsChecked.modeOfPayment"
+                v-model="columnsChecked.provider"
                 @click="
-                  columnsChecked.modeOfPayment = !columnsChecked.modeOfPayment
+                  columnsChecked.provider = !columnsChecked.provider
                 "
               />
-              <span class="ml-2 text-sm">Mode of Payment</span>
+              <span class="ml-2 text-sm">Provider</span>
             </label>
           </div>
         </div>
@@ -559,19 +588,33 @@
                   Transaction Date
                 </th>
                 <th
+                  v-if="columnsChecked.updatedDate"
+                  scope="col"
+                  class="uppercase px-6 py-3 border-2 border-slate-500"
+                >
+                  Updated At
+                </th>
+                <!-- <th
                   v-if="columnsChecked.transactionID"
                   scope="col"
                   class="uppercase px-6 py-3 border-2 border-slate-500"
                 >
                   Transaction ID
-                </th>
+                </th> -->
                 <th
+                  v-if="columnsChecked.miTransactionID"
+                  scope="col"
+                  class="uppercase px-6 py-3 border-2 border-slate-500"
+                >
+                  Transaction ID
+                </th>
+                <!-- <th
                   v-if="columnsChecked.userName"
                   scope="col"
                   class="uppercase px-6 py-3 border-2 border-slate-500"
                 >
                   Username
-                </th>
+                </th> -->
                 <th
                   v-if="columnsChecked.userPhone"
                   scope="col"
@@ -600,13 +643,7 @@
                 >
                   Status
                 </th>
-                <th
-                  v-if="columnsChecked.miTransactionID"
-                  scope="col"
-                  class="uppercase px-6 py-3 border-2 border-slate-500"
-                >
-                  MI Transaction ID
-                </th>
+                
                 <th
                   v-if="columnsChecked.miStatus"
                   scope="col"
@@ -615,7 +652,14 @@
                   MI Status
                 </th>
                 <th
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
+                  scope="col"
+                  class="uppercase px-6 py-3 border-2 border-slate-500"
+                >
+                  Provider
+                </th>
+                <th
+                  v-if="columnsChecked.bank"
                   scope="col"
                   class="uppercase px-6 py-3 border-2 border-slate-500"
                 >
@@ -624,7 +668,7 @@
               </tr>
             </thead>
 
-            <tbody v-for="(item, index) in pageOfItems" :key="index">
+            <tbody v-for="(item, index) in pager.data" :key="index">
               <tr
                 class="hover:bg-gray-500 bg-slate-600 h-10"
                 v-if="index % 2 === 0"
@@ -633,71 +677,88 @@
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionDate"
                 >
-                  {{ item[1].created_at }}
+                  {{ convertToMalaysiaTime(item.created_at) }}
                 </td>
                 <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.updatedDate"
+                >
+                  {{ convertToMalaysiaTime(item.updated_at )}}
+                </td>
+                <!-- <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionID"
                 >
-                  {{ item[1].id }}
-                </td>
+                  {{ item.id }}
+                </td> -->
+
                 <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.miTransactionID"
+                >
+                  {{ item.agent_transaction_id }}
+                </td>
+
+                <!-- <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userName"
                 >
-                  {{ item[1].user_name }}
-                </td>
+                  {{ item.user_name }}
+                </td> -->
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userPhone"
                 >
-                  {{ item[1].user_phone }}
+                  {{ item.user_phone }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userEmail"
                 >
-                  {{ item[1].user_email }}
+                  {{ item.user_email }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.amount"
                 >
-                  {{ item[1].amount_value }}
+                  {{ item.amount_value }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.status"
                 >
-                  {{ item[1].status }}
+                  {{ item.status }}
                 </td>
 
-                <td
-                  class="border-2 border-slate-500"
-                  v-if="columnsChecked.miTransactionID"
-                >
-                  {{ item[1].agent_transaction_id }}
-                </td>
+                
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miStatus"
                 >
-                  {{ item[1].novati_status }}
+                  {{ item.novati_status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
                 >
-                  {{ item[1].provider }}
+                  {{ item.provider }}
+                </td>
+
+                <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.bank"
+                >
+                  {{ item.bank }}
                 </td>
 
                 <td class="pl-2">
                   <button
+                  disabled
                     class="flex items-center p-1 text-white bg-green-600 hover:bg-green-700 rounded-md transition ease-in-out duration-200 translate-10"
                   >
                     <span class="font-bold">Resend</span>
@@ -718,6 +779,7 @@
 
                 <td>
                   <button
+                  disabled
                     class="flex items-center mr-2 p-1 text-white bg-green-600 hover:bg-green-700 rounded-md transition ease-in-out duration-200 translate-10"
                   >
                     <span class="font-bold">Repush</span>
@@ -742,74 +804,90 @@
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionDate"
                 >
-                  {{ item[1].created_at }}
+                  {{ convertToMalaysiaTime(item.created_at) }}
+                </td>
+                <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.updatedDate"
+                >
+                  {{ convertToMalaysiaTime(item.updated_at) }}
                 </td>
 
-                <td
+                <!-- <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.transactionID"
                 >
-                  {{ item[1].id }}
-                </td>
+                  {{ item.id }}
+                </td> -->
 
                 <td
                   class="border-2 border-slate-500"
+                  v-if="columnsChecked.miTransactionID"
+                >
+                  {{ item.agent_transaction_id }}
+                </td>
+
+                <!-- <td
+                  class="border-2 border-slate-500"
                   v-if="columnsChecked.userName"
                 >
-                  {{ item[1].user_name }}
-                </td>
+                  {{ item.user_name }}
+                </td> -->
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userPhone"
                 >
-                  {{ item[1].user_phone }}
+                  {{ item.user_phone }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.userEmail"
                 >
-                  {{ item[1].user_email }}
+                  {{ item.user_email }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.amount"
                 >
-                  {{ item[1].amount_value }}
+                  {{ item.amount_value }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.status"
                 >
-                  {{ item[1].status }}
+                  {{ item.status }}
                 </td>
 
-                <td
-                  class="border-2 border-slate-500"
-                  v-if="columnsChecked.miTransactionID"
-                >
-                  {{ item[1].agent_transaction_id }}
-                </td>
+                
 
                 <td
                   class="border-2 border-slate-500"
                   v-if="columnsChecked.miStatus"
                 >
-                  {{ item[1].novati_status }}
+                  {{ item.novati_status }}
                 </td>
 
                 <td
                   class="border-2 border-slate-500"
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
                 >
-                  {{ item[1].provider }}
+                  {{ item.provider }}
+                </td>
+
+                <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.bank"
+                >
+                  {{ item.bank }}
                 </td>
 
                 <td class="pl-2">
                   <button
+                  disabled
                     class="flex items-center p-1 text-white bg-green-600 hover:bg-green-700 rounded-md transition ease-in-out duration-200 translate-10"
                   >
                     <span class="font-bold">Resend</span>
@@ -830,6 +908,7 @@
 
                 <td>
                   <button
+                  disabled
                     class="flex items-center mr-2 p-1 text-white bg-green-600 hover:bg-green-700 rounded-md transition ease-in-out duration-200 translate-10"
                   >
                     <span class="font-bold">Repush</span>
@@ -852,7 +931,7 @@
           </table>
           <div
             class="flex items-center justify-center text-gray-200"
-            v-if="pageOfItems.length === 0 && !loading"
+            v-if="pager.data.length === 0 && !loading"
           >
             No record found
           </div>
@@ -864,55 +943,104 @@
   </div>
 </template>
 
+<style>
+
+button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+}
+
+button:disabled:hover {
+  background-color: grey; 
+}
+
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  text-align: center;
+  z-index: 9999;
+}
+
+.spinner {
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid rgb(22 163 74);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin: 15% auto;
+  animation: spin 2s linear infinite;
+}
+
+.loading-text {
+  margin-top: 0px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+</style>
+
 <script>
 import { onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import router from "../routes/routes";
 import DataService from "../services/DataService";
+import moment from 'moment-timezone';
 export default {
   setup() {
     const loading = ref(true);
+    const isLoading = ref(false);
     const dropDownShowColumn = ref(false);
     const todayTransaction = ref({});
     const selectAll = ref(false);
+    const today = new Date();
+    const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7); // subtract 7 days from today's date
+    const formattedStartDate = startDate.toISOString().slice(0, 10);
+    const formattedEndDate = today.toISOString().slice(0, 10);
 
     const columnsChecked = ref({
       transactionDate: true,
+      updatedDate: true,
       transactionID: true,
       userName: true,
       userPhone: true,
       userEmail: true,
       amount: true,
       status: true,
-      miTransactionID: false,
-      miStatus: false,
-      modeOfPayment: false,
+      miTransactionID: true,
+      miStatus: true,
+      provider: true,
+      bank: true,
     });
 
     const route = useRoute();
-    const pager = ref({
-      currentPage: 0,
-      endIndex: 0,
-      endPage: 0,
-      pageSize: 0,
-      pages: 0,
-      startIndex: 0,
-      startPage: null,
-      totalItems: 0,
-      totalPages: 0,
-    });
 
-    const pageOfItems = ref([]);
+    const pager = ref({
+      totalPages: 0,
+      totalItems:0,
+      currentPage:1,
+      pages:[],
+      startIndex:0,
+      endIndex:0,
+      data:[]
+    })
 
     const filter = ref({
-      transactionID: null,
-      transactionStartDate: "2021-10-03", //always required, should be set as today
-      transactionEndDate: "2021-10-04",
-      userPhone: null,
-      userEmail: null,
-      deno: null,
-      status: null,
-      isCSV: null,
+      transactionID: "",
+      startDate: formattedStartDate,
+      endDate: formattedEndDate,
+      userPhone: "",
+      userEmail: "",
+      deno: "",
+      status: ""
     });
 
     function columnsSelectAll() {
@@ -923,23 +1051,29 @@ export default {
           (key) => (columnsChecked.value[key] = true)
         );
       } else {
-        columnsChecked.value["miTransactionID"] = false;
+        // Object.keys(columnsChecked.value).forEach(
+        //   (key) => (columnsChecked.value[key] = false)
+        // );
+        // columnsChecked.value["miTransactionID"] = false;
         columnsChecked.value["miStatus"] = false;
-        columnsChecked.value["modeOfPayment"] = false;
+        columnsChecked.value["provider"] = false;
+        columnsChecked.value["bank"] = false;
       }
     }
 
     function filterFunction() {
-      if (!filter.value.transactionStartDate) {
-        // set to today date
-        filter.value.transactionStartDate = "2021-10-03";
-      }
       loading.value = true;
+      console.log(pager.value.currentPage);
       DataService.getFilteredData(pager.value.currentPage, filter.value)
         .then((response) => {
-          pager.value = response.data["pager"];
-          pageOfItems.value = response.data["pageOfItems"];
-          if(pageOfItems.value.length === 0){
+          pager.value.totalItems = response.data.totalItems;
+          pager.value.totalPages = response.data.totalPages;
+          pager.value.currentPage = response.data.currentPage;
+          pager.value.pages = response.data.pages;
+          pager.value.startIndex = response.data.startIndex;
+          pager.value.endIndex = response.data.endIndex;
+          pager.value.data = response.data.data;
+          if( pager.value.data.length === 0){
             pager.value.startIndex = -1
           }
           loading.value = false;
@@ -949,30 +1083,47 @@ export default {
         });
     }
 
-    function verifyUser() {
+    async function verifyUser() {
       let token = localStorage.getItem("token");
-      DataService.auth({ headers: { authorization: token } })
-        .then((response) => {
+      await DataService.auth({ authorization: token })
+      .then((response) => {
           console.log(response.data.message);
           filterFunction();
         })
         .catch((e) => {
+          console.log(e);
           router.push("/deniedAccess");
         });
     }
 
     function exportData(asCSV) {
-      filter.value.asCSV = asCSV;
+      showLoadingIndicator()
+      let fileTypeString;
+      if(asCSV){
+        fileTypeString = "CSV";
+      }else{
+        fileTypeString = "XLSX";
+      }
+      let exportFilter = ref({
+        transactionID: filter.value.transactionID,
+        startDate: filter.value.startDate,
+        endDate: filter.value.endDate,
+        userPhone: filter.value.userPhone,
+        userEmail: filter.value.userEmail,
+        deno: filter.value.deno,
+        status: filter.value.status,
+        fileType: fileTypeString
+      });
       let fileType;
       let fileName;
-      if (filter.value.asCSV) {
+      if (asCSV) {
         fileType = "csv/plain";
         fileName = "transactionHistory.csv";
       } else {
         fileType = "application/vnd.ms-excel";
         fileName = "transactionHistory.xlsx";
       }
-      DataService.exportData(filter.value).then((result) => {
+      DataService.exportData(exportFilter.value).then((result) => {
         var fileURL = window.URL.createObjectURL(
           new Blob([result.data], { type: fileType })
         );
@@ -982,20 +1133,43 @@ export default {
         document.body.appendChild(fileLink);
 
         fileLink.click();
+        hideLoadingIndicator()
       });
     }
+
     function resetFilter() {
+      router.push({
+        query: {
+          ...router.currentRoute.value.query,
+          page: 1,
+        },
+      });
       filter.value = {
-        transactionID: null,
-        //always required, should be set as today
-        transactionStartDate: "2021-10-03",
-        transactionEndDate: "2021-10-04",
-        userPhone: null,
-        userEmail: null,
-        deno: null,
-        status: null,
-        asCSV: null,
+        transactionID: "",
+        startDate: formattedStartDate,
+        endDate: formattedEndDate,
+        userPhone: "",
+        userEmail: "",
+        deno: "",
+        status: ""
       };
+      filterFunction();
+    }
+
+    function convertToMalaysiaTime(originalTimestamp) {
+      // Convert the original timestamp to Malaysia time zone
+      const malaysiaTime = moment(originalTimestamp).tz('Asia/Kuala_Lumpur');
+      
+      // Format the time in 'yyyy-MM-dd HH:mm:ss' format
+      return malaysiaTime.format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    function showLoadingIndicator() {
+      isLoading.value = true;
+    }
+
+    function hideLoadingIndicator() {
+      isLoading.value = false;
     }
 
     //watch(source,callback,option)
@@ -1003,20 +1177,29 @@ export default {
       //getter function return page value
       () => route.query.page,
       (page) => {
-        pageOfItems.value = [];
+        console.log(pager.value.currentPage);
         if (page !== pager.value.currentPage) {
+
           page = parseInt(page) || 1;
           loading.value = true;
           DataService.getFilteredData(page, filter.value)
-            .then((response) => {
-              pager.value = response.data["pager"];
-              pageOfItems.value = response.data["pageOfItems"];
-              
-              loading.value = false;
-            })
-            .catch((e) => {
-              console.warn(e);
-            });
+          .then((response) => {
+            pager.value.totalItems = response.data.totalItems;
+            pager.value.totalPages = response.data.totalPages;
+            pager.value.currentPage = response.data.currentPage;
+            pager.value.pages = response.data.pages;
+            pager.value.startIndex = response.data.startIndex;
+            pager.value.endIndex = response.data.endIndex;
+            pager.value.data = response.data.data;
+            console.log(pager.value);
+            if( pager.value.data.length === 0){
+              pager.value.startIndex = -1
+            }
+            loading.value = false;
+        })
+        .catch((e) => {
+          console.warn(e);
+        });
         }
       },
       {
@@ -1029,6 +1212,7 @@ export default {
     });
 
     return {
+      isLoading,
       loading,
       dropDownShowColumn,
       todayTransaction,
@@ -1036,12 +1220,14 @@ export default {
       selectAll,
       filter,
       pager,
-      pageOfItems,
       verifyUser,
       filterFunction,
       columnsSelectAll,
       exportData,
       resetFilter,
+      convertToMalaysiaTime,
+      showLoadingIndicator,
+      hideLoadingIndicator
     };
 
   },
