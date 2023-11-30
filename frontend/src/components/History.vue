@@ -108,7 +108,7 @@
                   id="denoFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg"
                 >
-                  <option value="null" selected>None</option>
+                  <option value="" selected></option>
                   <option value="30">30</option>
                   <option value="50">50</option>
                   <option value="100">100</option>
@@ -127,7 +127,7 @@
                   id="statusFilter"
                   class="mt-2 w-full px-1 py-1 border-solid border-2 rounded-lg"
                 >
-                  <option value="null" selected>None</option>
+                  <option value="" selected></option>
                   <option value="SUCCESS">Success</option>
                   <option value="FAILED">Failed</option>
                   <option value="PENDING">Pending</option>

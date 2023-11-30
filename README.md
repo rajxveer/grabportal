@@ -45,3 +45,14 @@ After user/admin logs-in, they are greeted with a dashboard. The dashboard will 
 The frontend of this portal is made with Vue.js (Vue 3 + Vite). 
 
 The backend of this portal is made with Node.js which fetches data from a MySQL database. 
+
+
+# Deployment
+### Backend
+1. Run pm2 list to get the list of program
+2. Get the program id of grab-portal
+3. Run pm2 restart [program_id]
+4. Run pm2 save 
+
+### Frontend
+1. Run npm run build
