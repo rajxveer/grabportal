@@ -160,7 +160,7 @@
         <!-- Mode Of Payment bar chart -->
         <div class="card bg-gray-800 w-full h-fit rounded-md p-5 shadow">
           <h2 class="font-normal text-gray-400 text-lg mt-1">
-            Mode of Payment
+            Provider
           </h2>
           <ModeOfPaymentChart />
         </div>

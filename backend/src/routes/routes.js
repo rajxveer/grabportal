@@ -384,7 +384,7 @@ router.post("/history/getFilteredData/:page/", async (req, res, next) => {
 
   const { count, rows } = await Transaction.findAndCountAll({
     attributes: [
-      'id','created_at','updated_at','user_name','user_email','user_phone','amount_value','status','agent_transaction_id', 'novati_status', 'provider'
+      'id','created_at','updated_at','user_name','user_email','user_phone','amount_value','status','agent_transaction_id', 'novati_status', 'provider', 'bank'
     ],
     offset: (page - 1) * pageSize,
     limit: pageSize,

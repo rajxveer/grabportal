@@ -414,7 +414,7 @@
             </label>
           </div>
 
-          <!-- Mode of Payment dropdown -->
+          <!-- Provider dropdown -->
           <div
             class="flex block px-4 py-2 text-sm text-gray-100 hover:bg-gray-400"
           >
@@ -423,12 +423,12 @@
                 class="flex item-center"
                 type="checkbox"
                 id="checkbox"
-                v-model="columnsChecked.modeOfPayment"
+                v-model="columnsChecked.provider"
                 @click="
-                  columnsChecked.modeOfPayment = !columnsChecked.modeOfPayment
+                  columnsChecked.provider = !columnsChecked.provider
                 "
               />
-              <span class="ml-2 text-sm">Mode of Payment</span>
+              <span class="ml-2 text-sm">Provider</span>
             </label>
           </div>
         </div>
@@ -652,7 +652,14 @@
                   MI Status
                 </th>
                 <th
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
+                  scope="col"
+                  class="uppercase px-6 py-3 border-2 border-slate-500"
+                >
+                  Provider
+                </th>
+                <th
+                  v-if="columnsChecked.bank"
                   scope="col"
                   class="uppercase px-6 py-3 border-2 border-slate-500"
                 >
@@ -737,9 +744,16 @@
 
                 <td
                   class="border-2 border-slate-500"
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
                 >
                   {{ item.provider }}
+                </td>
+
+                <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.bank"
+                >
+                  {{ item.bank }}
                 </td>
 
                 <td class="pl-2">
@@ -859,9 +873,16 @@
 
                 <td
                   class="border-2 border-slate-500"
-                  v-if="columnsChecked.modeOfPayment"
+                  v-if="columnsChecked.provider"
                 >
                   {{ item.provider }}
+                </td>
+
+                <td
+                  class="border-2 border-slate-500"
+                  v-if="columnsChecked.bank"
+                >
+                  {{ item.bank }}
                 </td>
 
                 <td class="pl-2">
@@ -996,7 +1017,8 @@ export default {
       status: true,
       miTransactionID: true,
       miStatus: true,
-      modeOfPayment: true,
+      provider: true,
+      bank: true,
     });
 
     const route = useRoute();
@@ -1034,7 +1056,8 @@ export default {
         // );
         // columnsChecked.value["miTransactionID"] = false;
         columnsChecked.value["miStatus"] = false;
-        columnsChecked.value["modeOfPayment"] = false;
+        columnsChecked.value["provider"] = false;
+        columnsChecked.value["bank"] = false;
       }
     }
 
